@@ -5,14 +5,17 @@ import (
 	"log"
 	"os"
 
-	"github.com/alpaslanpro/movie-crud/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/alpaslanpro/movie-crud/models"
+	"github.com/alpaslanpro/movie-crud/repositories"
 	"go.uber.org/fx"
 )
 
 func NewPostgresDB() (*gorm.DB, error) {
+
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
@@ -33,15 +36,30 @@ func NewPostgresDB() (*gorm.DB, error) {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		fmt.Println("Failed to connect to the database:", err)
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&models.User{}, &models.Movie{})
+	err = db.AutoMigrate(&models.Movie{}, &models.Actor{}, &models.Genre{}, &models.User{})
 	if err != nil {
+		fmt.Println("Failed to migrate database:", err)
 		return nil, err
 	}
 
+	fmt.Println("Database connected successfully")
 	return db, nil
 }
 
-var Module = fx.Provide(NewPostgresDB)
+func NewMovieRepository(db *gorm.DB) repositories.MovieRepository {
+	return repositories.NewGormMovieRepository(db)
+}
+
+func NewUserRepository(db *gorm.DB) repositories.UserRepository {
+	return repositories.NewGormUserRepository(db)
+}
+
+var Module = fx.Options(
+	fx.Provide(NewPostgresDB),
+	fx.Provide(NewMovieRepository),
+	fx.Provide(NewUserRepository),
+)

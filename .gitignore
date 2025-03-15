@@ -4,5 +4,4 @@ bin/
 *.out
 *.swp
 .DS_Store
-.env
 
