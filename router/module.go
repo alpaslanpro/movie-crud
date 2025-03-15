@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 
+	"github.com/alpaslanpro/movie-crud/pkg/auth"
 	"github.com/alpaslanpro/movie-crud/repositories"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
@@ -28,11 +29,11 @@ func ProvideRouter(h *HandlerStore) *gin.Engine {
 	r.POST("/login", h.UserHandler.LoginHandler)
 	r.POST("/register", h.UserHandler.RegisterHandler)
 
-	r.GET("/movies", h.MovieHandler.GetMovies)
-	r.GET("/movies/:id", h.MovieHandler.GetMovie)
-	r.POST("/movies", h.MovieHandler.PostMovie)
-	r.PUT("/movies/:id", h.MovieHandler.UpdateMovie)
-	r.DELETE("/movies/:id", h.MovieHandler.DeleteMovie)
+	r.GET("/movies", auth.AuthMiddleware(), h.MovieHandler.GetMovies)
+	r.GET("/movies/:id", auth.AuthMiddleware(), h.MovieHandler.GetMovie)
+	r.POST("/movies", auth.AuthMiddleware(), h.MovieHandler.PostMovie)
+	r.PUT("/movies/:id", auth.AuthMiddleware(), h.MovieHandler.UpdateMovie)
+	r.DELETE("/movies/:id", auth.AuthMiddleware(), h.MovieHandler.DeleteMovie)
 
 	return r
 }
