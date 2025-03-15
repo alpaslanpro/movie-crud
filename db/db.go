@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/alpaslanpro/movie-crud/models"
 	"github.com/joho/godotenv"
-	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"go.uber.org/fx"
 )
 
 func NewPostgresDB() (*gorm.DB, error) {
@@ -31,6 +32,11 @@ func NewPostgresDB() (*gorm.DB, error) {
 	}
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.AutoMigrate(&models.User{}, &models.Movie{})
 	if err != nil {
 		return nil, err
 	}
