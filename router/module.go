@@ -6,6 +6,8 @@ import (
 	"github.com/alpaslanpro/movie-crud/pkg/auth"
 	"github.com/alpaslanpro/movie-crud/repositories"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/fx"
 )
 
@@ -25,6 +27,8 @@ func ProvideRouter(h *HandlerStore) *gin.Engine {
 	r := gin.Default()
 
 	fmt.Println("Router successfully created:", r)
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.POST("/login", h.UserHandler.LoginHandler)
 	r.POST("/register", h.UserHandler.RegisterHandler)

@@ -30,6 +30,7 @@ func (r *GormMovieRepository) Create(movie *models.Movie) (*models.Movie, error)
 		return nil, err
 	}
 
+	// Check and link existing actors
 	var existingActors []models.Actor
 	for _, actor := range movie.Actors {
 		var existingActor models.Actor
@@ -41,6 +42,7 @@ func (r *GormMovieRepository) Create(movie *models.Movie) (*models.Movie, error)
 	}
 	movie.Actors = existingActors
 
+	// Check and link existing genres
 	var existingGenres []models.Genre
 	for _, genre := range movie.Genres {
 		var existingGenre models.Genre
@@ -52,6 +54,7 @@ func (r *GormMovieRepository) Create(movie *models.Movie) (*models.Movie, error)
 	}
 	movie.Genres = existingGenres
 
+	// Create movie with associated data
 	if err := tx.Create(movie).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -62,6 +65,7 @@ func (r *GormMovieRepository) Create(movie *models.Movie) (*models.Movie, error)
 	}
 	return movie, nil
 }
+
 
 func (r *GormMovieRepository) FindByID(id uint) (*models.Movie, error) {
 	var movie models.Movie
@@ -103,6 +107,7 @@ func (r *GormMovieRepository) Update(movie *models.Movie) (*models.Movie, error)
 		return nil, err
 	}
 
+	// Check and link existing actors
 	var existingActors []models.Actor
 	for _, actor := range movie.Actors {
 		var existingActor models.Actor
@@ -114,6 +119,7 @@ func (r *GormMovieRepository) Update(movie *models.Movie) (*models.Movie, error)
 	}
 	movie.Actors = existingActors
 
+	// Check and link existing genres
 	var existingGenres []models.Genre
 	for _, genre := range movie.Genres {
 		var existingGenre models.Genre
@@ -125,11 +131,13 @@ func (r *GormMovieRepository) Update(movie *models.Movie) (*models.Movie, error)
 	}
 	movie.Genres = existingGenres
 
+	// Save movie with associations
 	if err := tx.Model(&models.Movie{}).Where("id = ?", movie.ID).Updates(movie).Error; err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
+	// Update associations
 	if err := tx.Model(&movie).Association("Actors").Replace(movie.Actors); err != nil {
 		tx.Rollback()
 		return nil, err
